@@ -5,3 +5,4 @@
 ## References
 - [Postgres Tutorial](https://neon.com/postgresql/tutorial)
 - [SQLalchemy intro](https://www.youtube.com/watch?v=aAy-B6KPld8&list=WL&index=23)
+- [Scalable fastapi tuto](https://github.com/ArjanCodes/examples/tree/main/2025/project)
