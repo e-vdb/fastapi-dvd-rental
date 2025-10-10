@@ -32,9 +32,9 @@ repos:
   hooks:
     - id: pylint
       name: pylint
-      entry: pylint
+      entry: uv run pylint
       language: system
-      types: [python]
+      types: [ python ]
       args:
         [
           "-rn", # Only display messages
