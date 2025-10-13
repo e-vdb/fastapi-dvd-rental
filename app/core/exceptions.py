@@ -22,3 +22,11 @@ class NotFoundException(HTTPException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"{resource} with id {identifier} not found",
         )
+
+
+class CustomValidationError(Exception):
+    """A class for custom validation exception."""
+
+    def __init__(self, message: str) -> None:
+        """Initialise the class."""
+        self.message = message
