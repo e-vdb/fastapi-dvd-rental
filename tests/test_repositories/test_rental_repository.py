@@ -1,6 +1,6 @@
 """Unit tests for RentalRepository."""
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 import pytest
 
@@ -17,7 +17,7 @@ def test_get_customer_rentals_success(db_session, customer_with_rentals):
 
     assert rentals is not None
     assert len(rentals) == 3
-    assert rentals[0].rental_date == datetime(2025, 1, 1, tzinfo=UTC)
+    assert rentals[0].rental_date == datetime(2025, 1, 1)
     assert rentals[0].title == "The Shawshank Redemption"
 
 

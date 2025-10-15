@@ -13,6 +13,7 @@ dependencies = [
     "pylint>=3.3.9",
     "pylint-pytest>=1.1.7",
     "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "python-dotenv>=1.1.1",
     "sqlalchemy>=2.0.43",
 ]
