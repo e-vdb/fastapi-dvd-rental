@@ -5,8 +5,22 @@
 
 ## Get started
 
+Run the application (development mode)
+
 ```
 uv run fastapi dev app/app.py
+```
+
+Run unit tests
+
+```
+uv run pytest
+```
+
+Run unit tests with coverage
+
+```
+uv run pytest --cov=app
 ```
 
 ## References

@@ -1,4 +1,5 @@
 """Configuration for the application."""
+from __future__ import annotations
 
 from os import getenv
 
@@ -17,9 +18,15 @@ class Config(BaseSettings):
     db_name: str = "dvdrental"
     db_host: str = "localhost"
 
+    # Testing configuration
+    testing: bool = False
+    test_db_url: str | None = None
+
     @property
     def db_url(self) -> str:
         """Return the database URL."""
+        if self.testing and self.test_db_url:
+            return self.test_db_url
         return f"postgresql://{self.db_user}@{self.db_host}/{self.db_name}"
 
 
