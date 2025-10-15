@@ -30,3 +30,22 @@ class CustomValidationError(Exception):
     def __init__(self, message: str) -> None:
         """Initialise the class."""
         self.message = message
+
+
+class UnauthorizedException(HTTPException):
+    """A class for unauthorized exception."""
+
+    def __init__(self, detail: str) -> None:
+        """Return HTTP 403."""
+        super().__init__(status.HTTP_403_FORBIDDEN, detail=detail)
+
+
+class UnauthenticatedException(HTTPException):
+    """A class for unauthenticated exception."""
+
+    def __init__(self) -> None:
+        """Return HTTP 401."""
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Requires authentication",
+        )

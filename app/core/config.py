@@ -1,6 +1,7 @@
 """Configuration for the application."""
 from __future__ import annotations
 
+from functools import lru_cache
 from os import getenv
 
 from dotenv import load_dotenv
@@ -18,6 +19,12 @@ class Config(BaseSettings):
     db_name: str = "dvdrental"
     db_host: str = "localhost"
 
+    # auth0 settings
+    auth0_domain: str = getenv("AUTH0_DOMAIN", "mydomain")
+    auth0_api_audience: str = getenv("AUTH0_API_AUDIENCE", "myapi")
+    auth0_issuer: str = getenv("AUTH0_ISSUER", "https://mydomain.auth0.com")
+    auth0_algorithms: str = getenv("AUTH0_ALGORITHMS", "RS256")
+
     # Testing configuration
     testing: bool = False
     test_db_url: str | None = None
@@ -30,4 +37,7 @@ class Config(BaseSettings):
         return f"postgresql://{self.db_user}@{self.db_host}/{self.db_name}"
 
 
-config = Config()
+@lru_cache
+def get_settings() -> Config:
+    """Return the settings."""
+    return Config()
