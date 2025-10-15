@@ -4,23 +4,15 @@
 # pylint: disable=too-few-public-methods
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from sqlalchemy import func
 
 from app.db.schemas import Film, Inventory, Rental
 from app.models.rental import RentalFilmCountOutput
-
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
+from app.repositories.base_repository import BaseRepository
 
 
-class FilmRepository:
+class FilmRepository(BaseRepository):
     """Class to manage film data."""
-
-    def __init__(self, db: Session) -> None:
-        """Initialise the repository."""
-        self.db = db
 
     def get_most_rented(self, limit: int) -> list[RentalFilmCountOutput]:
         """Retrieve the top rented films."""

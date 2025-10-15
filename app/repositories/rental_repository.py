@@ -4,19 +4,14 @@
 # pylint: disable=too-few-public-methods
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
-
 from app.core.exceptions import NotFoundException
 from app.db.schemas import Film, Inventory, Rental
 from app.models.rental import RentalOutput
+from app.repositories.base_repository import BaseRepository
 
 
-class RentalRepository:
+class RentalRepository(BaseRepository):
     """Repository for rental table."""
-
-    def __init__(self, db: Session) -> None:
-        """Initialize the repository."""
-        self.db = db
 
     def get_customer_rentals(self, customer_id: int) -> list[RentalOutput]:
         """Get rentals of customer."""

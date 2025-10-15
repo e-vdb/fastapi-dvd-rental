@@ -3,19 +3,14 @@
 
 # pylint: disable=too-few-public-methods
 
-from sqlalchemy.orm import Session
-
 from app.core.exceptions import NotFoundException
 from app.db.schemas import Customer
 from app.models.customer import CustomerOutput
+from app.repositories.base_repository import BaseRepository
 
 
-class CustomerRepository:
+class CustomerRepository(BaseRepository):
     """Class to interact with customers."""
-
-    def __init__(self, db: Session) -> None:
-        """Initialise the customer repository service."""
-        self.db = db
 
     def get_customer(
         self,
