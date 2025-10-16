@@ -42,9 +42,13 @@ class VerifyToken:
                 token.credentials,
             ).key
         except jwt.exceptions.PyJWKClientError as error:
-            raise UnauthorizedException(str(error)) from error
+            raise UnauthorizedException(
+                detail=f"Unable to verify token: {error!s}",
+            ) from error
         except jwt.exceptions.DecodeError as error:
-            raise UnauthorizedException(str(error)) from error
+            raise UnauthorizedException(
+                detail=f"Invalid token format: {error!s}",
+            ) from error
 
         try:
             payload = jwt.decode(
@@ -55,10 +59,42 @@ class VerifyToken:
                 issuer=self.config.auth0_issuer,
             )
         except jwt.ExpiredSignatureError as err:
-            raise UnauthorizedException(str(err)) from err
+            raise UnauthorizedException(
+                detail="Token has expired",
+            ) from err
         except jwt.InvalidTokenError as err:
-            raise UnauthorizedException(str(err)) from err
+            raise UnauthorizedException(
+                detail=f"Invalid token: {err!s}",
+            ) from err
         except Exception as error:
-            raise UnauthorizedException(str(error)) from error
+            raise UnauthorizedException(
+                detail=f"Token verification failed: {error!s}",
+            ) from error
 
         return payload
+
+
+# Singleton instance for dependency injection
+token_verifier = VerifyToken()
+
+
+async def get_current_user(
+    payload: dict = Depends(token_verifier.verify),
+) -> dict:
+    """Dependency to get the current authenticated user from token payload.
+
+    Args:
+        payload: Decoded JWT token payload.
+
+    Returns:
+        User information from token payload.
+
+    Example:
+    ```python
+        @router.get("/me")
+        async def get_me(user: dict = Depends(get_current_user)):
+            return user
+    ```
+
+    """
+    return payload

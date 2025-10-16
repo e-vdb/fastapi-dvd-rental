@@ -1,9 +1,9 @@
 """Fast API application."""
 
-from fastapi import FastAPI, Security
+from fastapi import FastAPI
 
+from app.api.deps import CurrentUser
 from app.api.v1 import customers, films, rentals
-from app.core.auth import VerifyToken
 from app.core.exception_handlers import (
     not_found_exception_handler,
     validation_exception_handler,
@@ -12,7 +12,6 @@ from app.core.exceptions import CustomValidationError, NotFoundException
 from app.middleware.setup import setup_middleware
 
 app = FastAPI(title="DVD Rental API")
-auth = VerifyToken()
 setup_middleware(app)
 # Register exception handlers
 app.add_exception_handler(NotFoundException, not_found_exception_handler)
@@ -54,9 +53,21 @@ def public() -> dict[str, str]:
 
 # new code 👇
 @app.get("/api/private")
-def private(auth_result: dict = Security(auth.verify)) -> dict:
-    """Get private endpoint.
+def private(user: CurrentUser) -> dict:
+    """Get private endpoint that requires authentication.
 
-    A valid access token is required to access this route.
+    Args:
+        user: Current authenticated user from JWT token.
+
+    Returns:
+        Token payload containing user information.
+
+    Raises:
+        HTTPException: 401 if no token provided, 403 if token invalid.
+
     """
-    return auth_result
+    return {
+        "status": "success",
+        "message": "Hello from a private endpoint! You are authenticated.",
+        "user": user,
+    }
