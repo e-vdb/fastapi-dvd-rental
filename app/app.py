@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 
+from app.api.deps import CurrentUser
 from app.api.v1 import customers, films, rentals
 from app.core.exception_handlers import (
     not_found_exception_handler,
@@ -33,3 +34,40 @@ app.include_router(
 def read_root() -> dict[str, str]:
     """Read root endpoint."""
     return {"Hello": "World"}
+
+
+@app.get("/api/public")
+def public() -> dict[str, str]:
+    """Get public endpoint.
+
+    No access token required to access this route.
+    """
+    return {
+        "status": "success",
+        "msg": (
+            "Hello from a public endpoint! You don't need to be "
+            "authenticated to see this."
+        ),
+    }
+
+
+# new code 👇
+@app.get("/api/private")
+def private(user: CurrentUser) -> dict:
+    """Get private endpoint that requires authentication.
+
+    Args:
+        user: Current authenticated user from JWT token.
+
+    Returns:
+        Token payload containing user information.
+
+    Raises:
+        HTTPException: 401 if no token provided, 403 if token invalid.
+
+    """
+    return {
+        "status": "success",
+        "message": "Hello from a private endpoint! You are authenticated.",
+        "user": user,
+    }
