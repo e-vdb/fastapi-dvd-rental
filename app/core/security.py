@@ -7,6 +7,8 @@ We use Auth0 to issue the tokens.
 
 # pylint: disable=too-few-public-methods
 
+from collections.abc import Awaitable, Callable
+
 import jwt
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -98,3 +100,42 @@ async def get_current_user(
 
     """
     return payload
+
+
+async def get_user_permissions(
+    payload: dict = Depends(token_verifier.verify),
+) -> list:
+    """Get permissions from token."""
+    return payload.get("permissions", [])
+
+
+def require_permission(required_permission: str) -> Callable[[dict], Awaitable[dict]]:
+    """Dependency factory to check for specific permissions.
+
+    Args:
+        required_permission: The permission string required (e.g., "read:rentals").
+
+    Returns:
+        Dependency function that validates the permission.
+
+    Example:
+    ```python
+        @router.delete("/{id}")
+        async def delete_rental(
+            id: int,
+            user: dict = Depends(require_permission("delete:rentals"))
+        ):
+            pass
+    ```
+
+    """
+
+    async def permission_checker(user: dict = Depends(get_current_user)) -> dict:
+        permissions = user.get("permissions", [])
+        if required_permission not in permissions:
+            raise UnauthorizedException(
+                detail=f"Permission '{required_permission}' required",
+            )
+        return user
+
+    return permission_checker
