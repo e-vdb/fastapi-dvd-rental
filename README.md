@@ -30,6 +30,16 @@ Run unit tests with coverage
 uv run pytest --cov=app
 ```
 
+
+## Experiment with postgres
+
+Connect to postgres and select the dvdrental database
+```
+psql postgres
+
+\c dvdrental
+```
+
 ## Authentication
 
 The application uses Auth0 for authentication. The token is verified using the PyJWT library. The token is passed in the Authorization header as a Bearer token.

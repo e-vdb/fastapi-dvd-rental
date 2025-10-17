@@ -23,6 +23,27 @@ class Customer(Base):
         return f"<Customer(first_name={self.first_name}, last_name={self.last_name})>"
 
 
+class Actor(Base):
+    """Schema for actor table."""
+
+    __tablename__ = "actor"
+    actor_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    first_name: Mapped[str] = mapped_column(String)
+    last_name: Mapped[str] = mapped_column(String)
+
+    def __repr__(self) -> str:
+        """Return a string representation of the object."""
+        return f"<Actor(first_name={self.first_name}, last_name={self.last_name})>"
+
+
+class FilmActor(Base):
+    """Schema for actor table."""
+
+    __tablename__ = "film_actor"
+    actor_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    film_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+
 class Rental(Base):
     """Schema for rental table."""
 
