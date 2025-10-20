@@ -1,0 +1,35 @@
+[project]
+name = "demo-postgres"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.116.2",
+    "pre-commit>=4.3.0",
+    "psycopg2>=2.9.10",
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.11.0",
+    "pyjwt[crypto]>=2.10.1",
+    "pylint>=3.3.9",
+    "pylint-pytest>=1.1.7",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "python-dotenv>=1.1.1",
+    "sqlalchemy>=2.0.43",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+  "S101",    # allow assert
+  "PLR2004", # magic numbers in tests
+  "ARG001",  # unused fixtures
+  "D",       # no docstrings required
+  "ANN",     # allow missing annotations
+]
+
+[tool.pylint.main]
+load-plugins = ["pylint_pytest"]
