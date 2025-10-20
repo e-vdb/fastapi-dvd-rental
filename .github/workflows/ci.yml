@@ -28,10 +28,6 @@ jobs:
     - name: Sync project (dev deps too)
       run: uv sync --locked --all-extras --dev
 
-    - name: Show Ruff hook version (pre-commit)
-      run: uv run pre-commit run ruff --all-files -v || true
-
-
     - name: Run pre-commit
       run: uv run pre-commit run --all-files
 
