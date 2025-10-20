@@ -49,3 +49,21 @@ class UnauthenticatedException(HTTPException):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Requires authentication",
         )
+
+
+class ReturnDateAlreadyExistsException(HTTPException):
+    """Exception raised when a rental is already returned."""
+
+    def __init__(self, identifier: int | str) -> None:
+        """Initialize the ReturnDateAlreadyExistsException.
+
+        Parameters
+        ----------
+        identifier: int | str
+            The identifier of the rental that was already returned.
+
+        """
+        super().__init__(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail=f"Rental with id {identifier} already returned",
+        )

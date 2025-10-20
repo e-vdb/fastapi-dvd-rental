@@ -186,6 +186,46 @@ def sample_rental(db_session, sample_customer, sample_inventory):
 
 
 @pytest.fixture
+def multiple_rentals(db_session):
+    """Create multiple rentals for testing list operations.
+
+    Args:
+        db_session: Test database session.
+
+    Returns:
+        List of Rental instances.
+
+    """
+    rentals = [
+        Rental(
+            rental_id=1,
+            customer_id=1,
+            inventory_id=1,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+            return_date=datetime(2025, 1, 22, 10, 30, 0, tzinfo=UTC),
+        ),
+        Rental(
+            rental_id=2,
+            customer_id=2,
+            inventory_id=2,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+            return_date=datetime(2025, 1, 22, 10, 30, 0, tzinfo=UTC),
+        ),
+        Rental(
+            rental_id=3,
+            customer_id=3,
+            inventory_id=3,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+        ),
+    ]
+    db_session.add_all(rentals)
+    db_session.commit()
+    for rental in rentals:
+        db_session.refresh(rental)
+    return rentals
+
+
+@pytest.fixture
 def multiple_customers(db_session):
     """Create multiple customers for testing list operations.
 
@@ -535,7 +575,7 @@ def mock_staff_user(mock_user_payload):
     """Create a mock staff user with read permissions."""
     return {
         **mock_user_payload,
-        "permissions": ["read:customers", "read:rentals"],
+        "permissions": ["read:customers", "read:rentals", "write:rentals"],
     }
 
 

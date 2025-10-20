@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RentalOutput(BaseModel):
@@ -17,3 +17,21 @@ class RentalFilmCountOutput(BaseModel):
 
     title: str
     count: int
+
+
+class RentalItem(BaseModel):
+    """Model for the rental item."""
+
+    rental_id: int
+    customer_id: int
+    inventory_id: int
+    rental_date: datetime = Field(
+        ...,
+        title="Rental date",
+        description="Date of the rental.",
+    )
+    return_date: datetime | None = Field(
+        None,
+        title="Return date",
+        description="Date of the return if any.",
+    )

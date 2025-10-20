@@ -58,6 +58,7 @@ class Rental(Base):
         ForeignKey("inventory.inventory_id"),
     )
     rental_date: Mapped[str] = mapped_column(DateTime)
+    return_date: Mapped[str] = mapped_column(DateTime, nullable=True)
 
 
 class Inventory(Base):
