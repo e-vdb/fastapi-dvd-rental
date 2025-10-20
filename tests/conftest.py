@@ -539,6 +539,15 @@ def mock_staff_user(mock_user_payload):
     }
 
 
+@pytest.fixture
+def mock_analyst_user(mock_user_payload):
+    """Create a mock analyst user with read:reports permissions."""
+    return {
+        **mock_user_payload,
+        "permissions": ["read:reports"],
+    }
+
+
 # ============================================================================
 # AUTH CLIENT FIXTURES - Clients with Pre-configured Auth
 # ============================================================================
@@ -562,6 +571,18 @@ def client_with_staff_auth(client, mock_staff_user):
 
     async def override_get_current_user():
         return mock_staff_user
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client_with_analyst_auth(client, mock_analyst_user):
+    """Create a test client authenticated as staff (with read permissions)."""
+
+    async def override_get_current_user():
+        return mock_analyst_user
 
     app.dependency_overrides[get_current_user] = override_get_current_user
     yield client
