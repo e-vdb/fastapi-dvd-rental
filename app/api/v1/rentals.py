@@ -5,7 +5,7 @@ import logging
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import DatabaseSession
+from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
 from app.models.rental import RentalOutput
 from app.repositories.rental_repository import RentalRepository
