@@ -9,6 +9,7 @@
 [![SQLAlchemy](https://img.shields.io/badge/sqlalchemy-0A8BFF.svg?logo=sqlalchemy)](https://www.sqlalchemy.org/)
 [![PyJWT](https://img.shields.io/badge/pyjwt-0A8BFF.svg?logo=pyjwt)](https://github.com/jpadilla/pyjwt)
 [![Pydantic](https://img.shields.io/badge/pydantic-0A8BFF.svg?logo=pydantic)](https://github.com/pydantic/pydantic)
+![ci workflow](https://github.com/e-vdb/fastapi-dvd-rental/actions/workflows/ci.yml/badge.svg)
 
 ## Get started
 
