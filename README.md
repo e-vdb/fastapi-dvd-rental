@@ -11,6 +11,13 @@
 [![Pydantic](https://img.shields.io/badge/pydantic-0A8BFF.svg?logo=pydantic)](https://github.com/pydantic/pydantic)
 ![ci workflow](https://github.com/e-vdb/fastapi-dvd-rental/actions/workflows/ci.yml/badge.svg)
 
+## Features
+
+- 🔐 OAuth2 authentication with Auth0
+- 🎭 Role-based access control (RBAC)
+- 🧪 Comprehensive test coverage (70%+)
+- 🚀 CI with GitHub Actions
+
 ## Get started
 
 Run the application (development mode)
