@@ -1,0 +1,1 @@
+"""Endpoints of the api."""

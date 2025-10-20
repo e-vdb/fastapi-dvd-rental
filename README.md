@@ -30,6 +30,11 @@ Run unit tests with coverage
 uv run pytest --cov=app
 ```
 
+## GitHub Actions
+
+### Lint and test
+
+The workflow is set up in `.github/workflows/ci.yml`.
 
 ## Experiment with postgres
 
