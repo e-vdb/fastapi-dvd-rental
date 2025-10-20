@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.app import app
+from app.core.security import get_current_user
 from app.db.schemas import Actor, Base, Customer, Film, FilmActor, Inventory, Rental
 from app.db.session import get_db
 
@@ -507,3 +508,61 @@ def multiple_customers_with_rentals_and_actors(db_session, multiple_customers):
         db_session.refresh(rental)
 
     return multiple_customers, rentals
+
+
+# ============================================================================
+# AUTH FIXTURES - Mock Token Payloads
+# ============================================================================
+
+
+@pytest.fixture
+def mock_user_payload():
+    """Create a base mock user token payload."""
+    return {
+        "iss": "https://test.auth0.com/",
+        "sub": "auth0|test123",
+        "aud": "https://fastapiexample.com",
+        "iat": 1760624398,
+        "exp": 1760710798,
+        "jti": "abcdef12345",
+        "client_id": "myclientid123",
+        "permissions": [],
+    }
+
+
+@pytest.fixture
+def mock_staff_user(mock_user_payload):
+    """Create a mock staff user with read permissions."""
+    return {
+        **mock_user_payload,
+        "permissions": ["read:customers", "read:rentals"],
+    }
+
+
+# ============================================================================
+# AUTH CLIENT FIXTURES - Clients with Pre-configured Auth
+# ============================================================================
+
+
+@pytest.fixture
+def client_with_customer_auth(client, mock_user_payload):
+    """Create a test client authenticated as a customer (no permissions)."""
+
+    async def override_get_current_user():
+        return mock_user_payload
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client_with_staff_auth(client, mock_staff_user):
+    """Create a test client authenticated as staff (with read permissions)."""
+
+    async def override_get_current_user():
+        return mock_staff_user
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    yield client
+    app.dependency_overrides.clear()
