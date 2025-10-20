@@ -28,6 +28,9 @@ jobs:
     - name: Sync project (dev deps too)
       run: uv sync --locked --all-extras --dev
 
+    - name: Check Ruff version
+      run: uv run ruff --version
+
     - name: Run pre-commit
       run: uv run pre-commit run --all-files
 
