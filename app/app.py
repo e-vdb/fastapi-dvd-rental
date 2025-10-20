@@ -19,14 +19,17 @@ app.add_exception_handler(CustomValidationError, validation_exception_handler)
 
 app.include_router(
     customers.router,
+    prefix="/api/v1",
 )
 
 app.include_router(
     router=rentals.router,
+    prefix="/api/v1",
 )
 
 app.include_router(
     router=films.router,
+    prefix="/api/v1",
 )
 
 
