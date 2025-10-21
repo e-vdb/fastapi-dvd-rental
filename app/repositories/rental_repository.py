@@ -6,10 +6,16 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from app.core.exceptions import NotFoundException, ReturnDateAlreadyExistsException
+from app.core.exceptions import (
+    FilmNotAvailableException,
+    NotFoundException,
+    ReturnDateAlreadyExistsException,
+)
 from app.db.schemas import Film, Inventory, Rental
 from app.models.rental import RentalItem, RentalOutput
 from app.repositories.base_repository import BaseRepository
+from app.repositories.customer_repository import CustomerRepository
+from app.repositories.inventory_repository import InventoryRepository
 
 
 class RentalRepository(BaseRepository):
@@ -124,3 +130,63 @@ class RentalRepository(BaseRepository):
             )
             for result in results
         ]
+
+    def create_rental(self, customer_id: int, film_id: int) -> RentalItem:
+        """Create a rental.
+
+        Parameters
+        ----------
+        customer_id : int
+            The ID of the customer.
+        film_id : int
+            The ID of the film to rent.
+
+        Returns
+        -------
+        RentalItem
+            The rental item with the given ID.
+
+        Raises
+        ------
+        FilmNotAvailableException
+            If the film is not available for rental.
+
+        """
+        customer = CustomerRepository(db=self.db).get_customer(
+            customer_id=customer_id,
+        )
+        available_inventory = InventoryRepository(
+            db=self.db,
+        ).get_inventory_available_for_rental(
+            film_id=film_id,
+            store_id=customer.store_id,
+        )
+        if not available_inventory:
+            raise FilmNotAvailableException(
+                film_id=film_id,
+                store_id=customer.store_id,
+            )
+        today = datetime.now(tz=UTC)
+        new_rental = Rental(
+            customer_id=customer_id,
+            inventory_id=available_inventory.inventory_id,
+            rental_date=datetime(  # noqa: DTZ001
+                year=today.year,
+                month=today.month,
+                day=today.day,
+                hour=today.hour,
+                minute=today.minute,
+                second=today.second,
+            ),
+            staff_id=customer.store_id,
+        )
+        self.db.add(new_rental)
+        self.db.commit()
+        self.db.refresh(new_rental)
+        return RentalItem(
+            rental_id=new_rental.rental_id,
+            customer_id=new_rental.customer_id,
+            inventory_id=new_rental.inventory_id,
+            rental_date=new_rental.rental_date,
+            return_date=new_rental.return_date,
+        )

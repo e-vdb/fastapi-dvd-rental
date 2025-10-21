@@ -30,4 +30,5 @@ class CustomerRepository(BaseRepository):
             customer_id=customer.customer_id,
             first_name=customer.first_name,
             last_name=customer.last_name,
+            store_id=customer.store_id,
         )
