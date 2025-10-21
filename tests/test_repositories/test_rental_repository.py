@@ -1,10 +1,16 @@
 """Unit tests for RentalRepository."""
 
-from datetime import datetime
+# pylint: disable=no-member
+
+from datetime import UTC, datetime
 
 import pytest
 
-from app.core.exceptions import NotFoundException, ReturnDateAlreadyExistsException
+from app.core.exceptions import (
+    FilmNotAvailableException,
+    NotFoundException,
+    ReturnDateAlreadyExistsException,
+)
 from app.repositories.rental_repository import RentalRepository
 
 
@@ -47,7 +53,7 @@ def test_get_rental_item_success(db_session, multiple_rentals):
     assert rental.return_date == datetime(2025, 1, 22, 10, 30, 0)  # noqa: DTZ001
 
 
-def test__get_rental_item_raises_exception(db_session, multiple_rentals):
+def test_get_rental_item_raises_exception(db_session, multiple_rentals):
     """Test get_rental_item method raises NotFoundException."""
     repository = RentalRepository(db_session)
 
@@ -76,3 +82,35 @@ def test_return_rental_success(db_session, multiple_rentals):
     assert rental.customer_id == 3
     assert rental.inventory_id == 3
     assert rental.rental_date == datetime(2025, 1, 15, 10, 30, 0)  # noqa: DTZ001
+
+
+def test_create_rental_success(db_session, multiple_customers_with_rentals):
+    """Test create_rental method."""
+    repository = RentalRepository(db_session)
+    rental = repository.create_rental(
+        customer_id=multiple_customers_with_rentals[0][1].customer_id,
+        film_id=1,
+    )
+    today = datetime.now(tz=UTC)
+
+    assert rental is not None
+    assert rental.rental_id == 7
+    assert rental.customer_id == 2
+    assert rental.inventory_id == 1
+    assert rental.rental_date.year == today.year
+    assert rental.rental_date.month == today.month
+    assert rental.rental_date.day == today.day
+    assert rental.rental_date.hour == today.hour
+    assert rental.rental_date.minute == today.minute
+    assert rental.return_date is None
+
+
+def test_create_rental_raises_exception(db_session, multiple_customers_with_rentals):
+    """Test create_rental method raises FilmNotAvailableException."""
+    repository = RentalRepository(db_session)
+    with pytest.raises(FilmNotAvailableException) as exc_info:
+        repository.create_rental(
+            customer_id=multiple_customers_with_rentals[0][1].customer_id,
+            film_id=3,
+        )
+    assert "Film 3 is not available for rental at store 1" in str(exc_info.value.detail)
