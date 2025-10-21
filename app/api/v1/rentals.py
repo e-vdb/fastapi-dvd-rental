@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
-from app.models.rental import RentalOutput
+from app.models.rental import RentalItem
 from app.repositories.rental_repository import RentalRepository
 
 router = APIRouter(
@@ -18,17 +18,33 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
-@router.get("/{customer_id}", response_model=list[RentalOutput])
-def get_customer_rentals(
+@router.get("/{rental_id}", response_model=RentalItem)
+def get_rental_item(
     db: DatabaseSession,
-    customer_id: int,
+    rental_id: int,
     user: dict = Depends(require_permission("read:rentals")),
-) -> list[RentalOutput]:
-    """Retrieve rentals for a given customer."""
+) -> RentalItem:
+    """Retrieve a rental by ID."""
     logger.info(
-        "User %s accessed customer %s",
+        "User %s accessed rental %s",
         user.get("sub"),
-        customer_id,
+        rental_id,
     )
     service = RentalRepository(db)
-    return service.get_customer_rentals(customer_id=customer_id)
+    return service.get_rental_item(rental_id=rental_id)
+
+
+@router.patch("/{rental_id}/return", response_model=RentalItem)
+def return_rental(
+    db: DatabaseSession,
+    rental_id: int,
+    user: dict = Depends(require_permission("write:rentals")),
+) -> RentalItem:
+    """Return a rental."""
+    logger.info(
+        "User %s returned rental %s",
+        user.get("sub"),
+        rental_id,
+    )
+    service = RentalRepository(db)
+    return service.return_rental(rental_id=rental_id)

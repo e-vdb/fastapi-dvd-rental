@@ -20,11 +20,46 @@
 
 ## Get started
 
+### Prerequisites
+
+- Python 3.12
+- PostgreSQL
+- Auth0 account
+
+### Set-up the database
+
+- Download the dvdrental database zip folder (see tutorial [here](https://neon.com/postgresql/postgresql-getting-started/load-postgresql-sample-database))
+- Unzip the folder to extract dvdrental.tar
+- Import the dvdrental.tar file into your postgres database
+
+```
+psql -d postgres -c "CREATE DATABASE dvdrental;"
+
+pg_restore --no-owner --no-privileges -d dvdrental dvdrental.tar
+```
+
+### Clone the repository
+
+```
+git clone https://github.com/e-vdb/fastapi-dvd-rental.git
+cd fastapi-dvd-rental
+```
+
+### Install dependencies
+
+```
+uv sync --locked --all-extras --dev
+```
+
+### Commands
+
 Run the application (development mode)
 
 ```
 uv run fastapi dev app/app.py
 ```
+
+
 
 Run unit tests
 
