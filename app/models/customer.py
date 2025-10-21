@@ -9,3 +9,4 @@ class CustomerOutput(BaseModel):
     customer_id: int
     first_name: str
     last_name: str
+    store_id: int

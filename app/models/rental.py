@@ -35,3 +35,10 @@ class RentalItem(BaseModel):
         title="Return date",
         description="Date of the return if any.",
     )
+
+
+class RentalCreate(BaseModel):
+    """Request model for creating a rental."""
+
+    customer_id: int = Field(..., gt=0, description="ID of the customer")
+    film_id: int = Field(..., gt=0, description="ID of the film to rent")

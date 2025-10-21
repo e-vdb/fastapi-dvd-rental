@@ -17,6 +17,7 @@ class Customer(Base):
     customer_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String)
+    store_id: Mapped[int] = mapped_column(Integer, default=1)
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
@@ -57,8 +58,9 @@ class Rental(Base):
         Integer,
         ForeignKey("inventory.inventory_id"),
     )
-    rental_date: Mapped[str] = mapped_column(DateTime)
-    return_date: Mapped[str] = mapped_column(DateTime, nullable=True)
+    rental_date: Mapped[DateTime] = mapped_column(DateTime)
+    return_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
+    staff_id: Mapped[int] = mapped_column(Integer, default=1)
 
 
 class Inventory(Base):
@@ -67,6 +69,7 @@ class Inventory(Base):
     __tablename__ = "inventory"
     inventory_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     film_id: Mapped[int] = mapped_column(Integer, ForeignKey("film.film_id"))
+    store_id: Mapped[int] = mapped_column(Integer, default=1)
 
 
 class Film(Base):

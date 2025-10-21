@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
-from app.models.rental import RentalItem
+from app.models.rental import RentalCreate, RentalItem
 from app.repositories.rental_repository import RentalRepository
 
 router = APIRouter(
@@ -48,3 +48,26 @@ def return_rental(
     )
     service = RentalRepository(db)
     return service.return_rental(rental_id=rental_id)
+
+
+@router.post("/", response_model=RentalItem, status_code=201)
+def create_rental(
+    db: DatabaseSession,
+    rental_data: RentalCreate,
+    _user: dict = Depends(require_permission("write:rentals")),
+) -> RentalItem:
+    """Create a new rental.
+
+    Requires write:rentals permission..
+    """
+    logger.info(
+        "User %s creating a rental for customer %s and film %s",
+        _user.get("sub"),
+        rental_data.customer_id,
+        rental_data.film_id,
+    )
+    service = RentalRepository(db)
+    return service.create_rental(
+        customer_id=rental_data.customer_id,
+        film_id=rental_data.film_id,
+    )
