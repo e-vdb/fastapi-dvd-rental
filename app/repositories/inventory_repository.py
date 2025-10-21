@@ -1,7 +1,7 @@
 # app/repositories/inventory_repository.py
 """Repository for inventory table."""
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,singleton-comparison
 from __future__ import annotations
 
 from app.db.schemas import Inventory, Rental
@@ -19,7 +19,9 @@ class InventoryRepository(BaseRepository):
         """Get one available inventory item (optimized query)."""
         rented_inventory_ids = (
             self.db.query(Rental.inventory_id)
-            .filter(Rental.return_date is None)
+            .filter(
+                Rental.return_date == None,  # noqa: E711
+            )
             .scalar_subquery()
         )
 
