@@ -15,8 +15,16 @@ class OrderDirectionEnum(Enum):
 class PaginationFilter(BaseModel):
     """Basic filter model."""
 
-    skip: int = Field(default=0)
-    limit: int = Field(default=10)
+    skip: int = Field(
+        default=0,
+        ge=0,
+        description="Number of records to skip",
+    )
+    limit: int = Field(
+        default=10,
+        ge=1,
+        description="Maximum records to return",
+    )
 
 
 class OrderFilter(BaseModel):
@@ -30,7 +38,3 @@ class OrderFilter(BaseModel):
         ...,
         description="Column to order by",
     )
-
-
-class BaseFilter(PaginationFilter, OrderFilter):
-    """Base filter model."""

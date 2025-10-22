@@ -121,9 +121,11 @@ def test_get_rentals_filtered_by_success(db_session, multiple_rentals):
     """Test get_rentals_filtered_by method."""
     repository = RentalRepository(db_session)
 
-    # test default sorting
+    # test sorting ascending
     rentals = repository.get_rentals_filtered_by(
-        rental_filters=RentalFilters(),
+        rental_filters=RentalFilters(
+            order_direction="asc",
+        ),
     )
     assert rentals is not None
     assert len(rentals) == 3
@@ -131,7 +133,7 @@ def test_get_rentals_filtered_by_success(db_session, multiple_rentals):
     assert rentals[1].rental_id == 2
     assert rentals[2].rental_id == 3
 
-    # test sorting by rental_id
+    # test sorting descending
     rentals = repository.get_rentals_filtered_by(
         rental_filters=RentalFilters(
             order_direction="desc",
