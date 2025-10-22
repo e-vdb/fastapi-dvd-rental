@@ -117,12 +117,12 @@ def test_get_rentals_filtered_by_authorized_with_permissions(
     client_with_staff_auth,
     multiple_rentals,
 ):
-    """Test accessing protected endpoint without auth returns 200."""
+    """Test accessing protected endpoint with correct permissions returns 200."""
     response = client_with_staff_auth.get("/api/v1/rentals")
     assert response.status_code == 200
     rentals = response.json()
     assert rentals is not None
     assert len(rentals) == 3
-    assert rentals[0]["rental_id"] == 3
+    assert rentals[0]["rental_id"] == 1
     assert rentals[1]["rental_id"] == 2
-    assert rentals[2]["rental_id"] == 1
+    assert rentals[2]["rental_id"] == 3

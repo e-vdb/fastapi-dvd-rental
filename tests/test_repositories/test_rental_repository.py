@@ -120,6 +120,18 @@ def test_create_rental_raises_exception(db_session, multiple_customers_with_rent
 def test_get_rentals_filtered_by_success(db_session, multiple_rentals):
     """Test get_rentals_filtered_by method."""
     repository = RentalRepository(db_session)
+
+    # test default sorting
+    rentals = repository.get_rentals_filtered_by(
+        rental_filters=RentalFilters(),
+    )
+    assert rentals is not None
+    assert len(rentals) == 3
+    assert rentals[0].rental_id == 1
+    assert rentals[1].rental_id == 2
+    assert rentals[2].rental_id == 3
+
+    # test sorting by rental_id
     rentals = repository.get_rentals_filtered_by(
         rental_filters=RentalFilters(
             order_direction="desc",

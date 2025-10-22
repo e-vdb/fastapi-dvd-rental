@@ -3,7 +3,7 @@
 
 from sqlalchemy.orm import Query
 
-from app.models.base_filters import BaseFilter
+from app.models.base_filters import BaseFilter, OrderDirectionEnum
 
 
 def apply_filters(query: Query, model: type, filters: BaseFilter) -> Query:
@@ -22,7 +22,7 @@ def apply_filters(query: Query, model: type, filters: BaseFilter) -> Query:
     # --- Ordering ---
     order_col = getattr(model, filters.order_by, None)
     if order_col is not None:
-        if filters.order_direction == "asc":
+        if filters.order_direction == OrderDirectionEnum.ASC:
             query = query.order_by(order_col.asc())
         else:
             query = query.order_by(order_col.desc())
