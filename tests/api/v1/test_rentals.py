@@ -95,3 +95,34 @@ def test_create_rental_authorized_with_permissions(
     assert rental["inventory_id"] == 1
     assert rental["return_date"] is None
     assert rental["rental_date"] is not None
+
+
+def test_get_rentals_filtered_by_unauthorized(client):
+    """Test accessing protected endpoint without auth returns 401."""
+    response = client.get("/api/v1/rentals")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Requires authentication"
+
+
+def test_get_rentals_filtered_by_authorized_without_permissions(
+    client_with_customer_auth,
+):
+    """Test accessing protected endpoint without permissions returns 403."""
+    response = client_with_customer_auth.get("/api/v1/rentals")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Permission 'read:rentals' required"
+
+
+def test_get_rentals_filtered_by_authorized_with_permissions(
+    client_with_staff_auth,
+    multiple_rentals,
+):
+    """Test accessing protected endpoint without auth returns 200."""
+    response = client_with_staff_auth.get("/api/v1/rentals")
+    assert response.status_code == 200
+    rentals = response.json()
+    assert rentals is not None
+    assert len(rentals) == 3
+    assert rentals[0]["rental_id"] == 3
+    assert rentals[1]["rental_id"] == 2
+    assert rentals[2]["rental_id"] == 1
