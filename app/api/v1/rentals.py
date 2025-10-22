@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
 from app.models.rental import RentalCreate, RentalItem
+from app.models.rental_filters import RentalFilters  # noqa: TCH001
 from app.repositories.rental_repository import RentalRepository
 
 router = APIRouter(
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
-@router.get("/{rental_id}", response_model=RentalItem)
+@router.get("/{rental_id}/read", response_model=RentalItem)
 def get_rental_item(
     db: DatabaseSession,
     rental_id: int,
@@ -32,6 +33,26 @@ def get_rental_item(
     )
     service = RentalRepository(db)
     return service.get_rental_item(rental_id=rental_id)
+
+
+@router.get("/", response_model=list[RentalItem])
+def get_rentals_filtered_by(
+    db: DatabaseSession,
+    rental_filters: RentalFilters = Query(
+        ...,
+    ),
+    _user: dict = Depends(require_permission("read:rentals")),
+) -> list[RentalItem]:
+    """Get rentals filtered by custom filters."""
+    logger.info(
+        "User %s accessed rentals with custom filter %s",
+        _user.get("sub"),
+        rental_filters.model_dump_json(),
+    )
+    service = RentalRepository(db=db)
+    return service.get_rentals_filtered_by(
+        rental_filters=rental_filters,
+    )
 
 
 @router.patch("/{rental_id}/return", response_model=RentalItem)

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from app.core.exceptions import (
     FilmNotAvailableException,
@@ -16,10 +17,39 @@ from app.models.rental import RentalItem, RentalOutput
 from app.repositories.base_repository import BaseRepository
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.inventory_repository import InventoryRepository
+from app.utils.query_builders import apply_filters
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Query
+
+    from app.models.rental_filters import RentalFilters
 
 
 class RentalRepository(BaseRepository):
     """Repository for rental table."""
+
+    def get_rentals_filtered_by(
+        self,
+        rental_filters: RentalFilters,
+    ) -> list[RentalItem]:
+        """Get rentals filtered by custom filters."""
+        query: Query = self.db.query(Rental)
+        query = apply_filters(
+            query=query,
+            model=Rental,
+            filters=rental_filters,
+        )
+        results = query.all()
+        return [
+            RentalItem(
+                rental_id=result.rental_id,
+                customer_id=result.customer_id,
+                inventory_id=result.inventory_id,
+                rental_date=result.rental_date,
+                return_date=result.return_date,
+            )
+            for result in results
+        ]
 
     def _get_rental_helper(self, rental_id: int) -> Rental:
         """Get a rental by ID (helper function).

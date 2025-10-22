@@ -11,6 +11,7 @@ from app.core.exceptions import (
     NotFoundException,
     ReturnDateAlreadyExistsException,
 )
+from app.models.rental_filters import RentalFilters
 from app.repositories.rental_repository import RentalRepository
 
 
@@ -114,3 +115,42 @@ def test_create_rental_raises_exception(db_session, multiple_customers_with_rent
             film_id=3,
         )
     assert "Film 3 is not available for rental at store 1" in str(exc_info.value.detail)
+
+
+def test_get_rentals_filtered_by_success(db_session, multiple_rentals):
+    """Test get_rentals_filtered_by method."""
+    repository = RentalRepository(db_session)
+
+    # test sorting ascending
+    rentals = repository.get_rentals_filtered_by(
+        rental_filters=RentalFilters(
+            order_direction="asc",
+        ),
+    )
+    assert rentals is not None
+    assert len(rentals) == 3
+    assert rentals[0].rental_id == 1
+    assert rentals[1].rental_id == 2
+    assert rentals[2].rental_id == 3
+
+    # test sorting descending
+    rentals = repository.get_rentals_filtered_by(
+        rental_filters=RentalFilters(
+            order_direction="desc",
+        ),
+    )
+    assert rentals is not None
+    assert len(rentals) == 3
+    assert rentals[0].rental_id == 3
+    assert rentals[1].rental_id == 2
+    assert rentals[2].rental_id == 1
+
+    # filter on customer 1 only
+    rentals = repository.get_rentals_filtered_by(
+        rental_filters=RentalFilters(
+            customer_id=1,
+        ),
+    )
+    assert rentals is not None
+    assert len(rentals) == 1
+    assert rentals[0].customer_id == 1
