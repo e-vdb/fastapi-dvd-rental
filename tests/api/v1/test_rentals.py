@@ -1,11 +1,11 @@
 """Test suite for the rentals router of the api."""
-
+# pylint: disable=import-error
 from app.models.rental import RentalCreate
 
 
 def test_get_rental_unauthorized(client):
     """Test accessing protected endpoint without auth returns 401."""
-    response = client.get("/api/v1/rentals/1")
+    response = client.get("/api/v1/rentals/1/read")
     assert response.status_code == 401
     assert response.json()["detail"] == "Requires authentication"
 
@@ -15,7 +15,7 @@ def test_get_rental_authorized_without_permissions(
     multiple_rentals,
 ):
     """Test accessing rental_id endpoint without permissions returns 403."""
-    response = client_with_customer_auth.get("/api/v1/rentals/1")
+    response = client_with_customer_auth.get("/api/v1/rentals/1/read")
     assert response.status_code == 403
     assert response.json()["detail"] == "Permission 'read:rentals' required"
 
@@ -25,7 +25,7 @@ def test_get_rental_authorized_with_permissions(
     multiple_rentals,
 ):
     """Test accessing rental_id endpoint with permissions returns 200."""
-    response = client_with_staff_auth.get("/api/v1/rentals/1")
+    response = client_with_staff_auth.get("/api/v1/rentals/1/read")
     assert response.status_code == 200
     rental = response.json()
     assert rental is not None
