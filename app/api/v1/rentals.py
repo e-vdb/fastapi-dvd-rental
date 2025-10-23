@@ -7,8 +7,11 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
-from app.models.rental import RentalCreate, RentalItem
-from app.models.rental_filters import RentalFilters  # noqa: TCH001
+from app.models.rental import OverdueRental, RentalCreate, RentalItem
+from app.models.rental_filters import (  # noqa: TCH001
+    OverdueRentalFilters,
+    RentalFilters,
+)
 from app.services.rental_service import RentalService
 
 router = APIRouter(
@@ -53,6 +56,22 @@ def get_rentals_filtered_by(
     return service.get_rentals_filtered_by(
         filters=rental_filters,
     )
+
+
+@router.get("/overdue", response_model=list[OverdueRental])
+def get_overdue_rentals(
+    db: DatabaseSession,
+    filters: OverdueRentalFilters = Depends(),
+    _user: dict = Depends(require_permission("read:rentals")),
+) -> list[OverdueRental]:
+    """Get overdue rentals filtered by custom filters."""
+    logger.info(
+        "User %s fetched overdue rentals with custom filter %s",
+        _user.get("sub"),
+        filters.model_dump_json(),
+    )
+    service = RentalService(db)
+    return service.get_overdue_rentals(filters)
 
 
 @router.patch("/{rental_id}/return", response_model=RentalItem)

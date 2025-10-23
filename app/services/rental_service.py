@@ -8,8 +8,8 @@ from app.core.exceptions import (
     NotFoundException,
     RentalAlreadyReturnedException,
 )
-from app.models.rental import RentalItem
-from app.models.rental_filters import RentalFilters
+from app.models.rental import OverdueRental, RentalItem
+from app.models.rental_filters import OverdueRentalFilters, RentalFilters
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.inventory_repository import InventoryRepository
 from app.repositories.rental_repository import RentalRepository
@@ -93,3 +93,20 @@ class RentalService:
         self._db.refresh(new_rental)
 
         return RentalItem.model_validate(new_rental)
+
+    def get_overdue_rentals(self, filters: OverdueRentalFilters) -> list[OverdueRental]:
+        """Get overdue rentals filtered."""
+        results = self.rental_repo.get_overdue_rentals(filters=filters)
+        return [
+            OverdueRental(
+                rental_id=result.rental_id,
+                customer_id=result.customer_id,
+                inventory_id=result.inventory_id,
+                film_id=result.film_id,
+                rental_duration=result.rental_duration,
+                rental_date=result.rental_date,
+                due_date=result.due_date,
+                days_overdue=result.days_overdue,
+            )
+            for result in results
+        ]

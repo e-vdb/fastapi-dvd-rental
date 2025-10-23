@@ -126,3 +126,31 @@ def test_get_rentals_filtered_by_authorized_with_permissions(
     assert rentals[0]["rental_id"] == 1
     assert rentals[1]["rental_id"] == 2
     assert rentals[2]["rental_id"] == 3
+
+
+def test_get_overdue_rentals_unauthorized(client):
+    """Test accessing protected endpoint without auth returns 401."""
+    response = client.get("/api/v1/rentals/overdue")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Requires authentication"
+
+
+def test_get_overdue_rentals_authorized_without_permissions(
+    client_with_customer_auth,
+    multiple_rentals,
+):
+    """Test accessing protected endpoint without permissions returns 403."""
+    response = client_with_customer_auth.get("/api/v1/rentals/overdue")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Permission 'read:rentals' required"
+
+
+def test_get_overdue_rentals_authorized_with_permissions(
+    client_with_staff_auth,
+    multiple_rentals,
+):
+    """Test accessing protected endpoint with correct permissions returns 200."""
+    response = client_with_staff_auth.get("/api/v1/rentals/overdue")
+    assert response.status_code == 200
+    rentals = response.json()
+    assert rentals is not None
