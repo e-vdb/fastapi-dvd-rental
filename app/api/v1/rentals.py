@@ -9,7 +9,7 @@ from app.api.deps import DatabaseSession  # noqa: TCH001
 from app.core.security import require_permission
 from app.models.rental import RentalCreate, RentalItem
 from app.models.rental_filters import RentalFilters  # noqa: TCH001
-from app.repositories.rental_repository import RentalRepository
+from app.services.rental_service import RentalService
 
 router = APIRouter(
     prefix="/rentals",
@@ -31,7 +31,7 @@ def get_rental_item(
         user.get("sub"),
         rental_id,
     )
-    service = RentalRepository(db)
+    service = RentalService(db)
     return service.get_rental_item(rental_id=rental_id)
 
 
@@ -49,9 +49,9 @@ def get_rentals_filtered_by(
         _user.get("sub"),
         rental_filters.model_dump_json(),
     )
-    service = RentalRepository(db=db)
+    service = RentalService(db=db)
     return service.get_rentals_filtered_by(
-        rental_filters=rental_filters,
+        filters=rental_filters,
     )
 
 
@@ -67,7 +67,7 @@ def return_rental(
         user.get("sub"),
         rental_id,
     )
-    service = RentalRepository(db)
+    service = RentalService(db)
     return service.return_rental(rental_id=rental_id)
 
 
@@ -87,7 +87,7 @@ def create_rental(
         rental_data.customer_id,
         rental_data.film_id,
     )
-    service = RentalRepository(db)
+    service = RentalService(db)
     return service.create_rental(
         customer_id=rental_data.customer_id,
         film_id=rental_data.film_id,
