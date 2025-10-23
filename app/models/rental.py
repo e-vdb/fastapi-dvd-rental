@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RentalOutput(BaseModel):
@@ -21,6 +21,8 @@ class RentalFilmCountOutput(BaseModel):
 
 class RentalItem(BaseModel):
     """Model for the rental item."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     rental_id: int
     customer_id: int

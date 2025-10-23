@@ -51,7 +51,7 @@ class UnauthenticatedException(HTTPException):
         )
 
 
-class ReturnDateAlreadyExistsException(HTTPException):
+class RentalAlreadyReturnedException(HTTPException):
     """Exception raised when a rental is already returned."""
 
     def __init__(self, identifier: int | str) -> None:
