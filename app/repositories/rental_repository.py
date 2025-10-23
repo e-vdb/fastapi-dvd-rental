@@ -120,11 +120,25 @@ class RentalRepository(BaseRepository):
         """
         current_date = func.current_date()  # pylint: disable=not-callable
 
-        # due_date = rental_date::date + rental_duration
-        due_date_expr = cast(Rental.rental_date, Date) + Film.rental_duration
+        if self.db.bind.dialect.name == "sqlite":
+            due_date_expr = func.date(
+                Rental.rental_date,
+                func.concat(  # pylint: disable=not-callable
+                    "+",
+                    Film.rental_duration,
+                    " day",
+                ),
+            )
+            days_overdue_expr = func.greatest(
+                func.julianday(current_date) - func.julianday(due_date_expr),
+                0,
+            )
+        else:
+            # due_date = rental_date::date + rental_duration
+            due_date_expr = cast(Rental.rental_date, Date) + Film.rental_duration
 
-        # Compute days_overdue as GREATEST(current_date - due_date, 0)
-        days_overdue_expr = func.greatest(current_date - due_date_expr, 0)
+            # Compute days_overdue as GREATEST(current_date - due_date, 0)
+            days_overdue_expr = func.greatest(current_date - due_date_expr, 0)
 
         stmt = (
             select(

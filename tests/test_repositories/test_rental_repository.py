@@ -10,7 +10,7 @@ from app.core.exceptions import (
     NotFoundException,
 )
 from app.db.schemas import Rental
-from app.models.rental_filters import RentalFilters
+from app.models.rental_filters import OverdueRentalFilters, RentalFilters
 from app.repositories.rental_repository import RentalRepository
 
 
@@ -121,3 +121,18 @@ def test_get_rentals_filtered_by_success(db_session, multiple_rentals):
     assert rentals is not None
     assert len(rentals) == 1
     assert rentals[0].customer_id == 1
+
+
+def test_get_overdue_rentals(db_session, multiple_rentals):
+    """Test get_rentals_filtered_by method."""
+    repository = RentalRepository(db_session)
+
+    overdue_rentals = repository.get_overdue_rentals(
+        filters=OverdueRentalFilters(
+            order_direction="desc",
+            inventory_id=3,
+        ),
+    )
+    assert overdue_rentals is not None
+    assert len(overdue_rentals) == 1
+    assert overdue_rentals[0].rental_id == 3

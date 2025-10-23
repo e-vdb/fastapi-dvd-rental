@@ -4,7 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -28,6 +29,30 @@ def test_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # ✅ Register missing PostgreSQL functions in SQLite
+    if engine.dialect.name == "sqlite":
+
+        @event.listens_for(Engine, "connect")
+        def sqlite_register_functions(
+            dbapi_connection,
+            connection_record,
+        ):  # pylint: disable=unused-argument
+            # Implement GREATEST()
+            def greatest(*args):
+                # Filter out None to avoid TypeErrors
+                valid_args = [a for a in args if a is not None]
+                return max(valid_args) if valid_args else None
+
+            dbapi_connection.create_function("greatest", -1, greatest)
+
+            # (Optional) Implement LEAST() too — can be handy later
+            def least(*args):
+                valid_args = [a for a in args if a is not None]
+                return min(valid_args) if valid_args else None
+
+            dbapi_connection.create_function("least", -1, least)
+
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)
@@ -196,6 +221,20 @@ def multiple_rentals(db_session):
         List of Rental instances.
 
     """
+    film = Film(
+        film_id=1,
+        title="Test Film",
+        rental_duration=3,
+    )
+    db_session.add(film)
+
+    inventories = [
+        Inventory(inventory_id=1, film_id=1),
+        Inventory(inventory_id=2, film_id=1),
+        Inventory(inventory_id=3, film_id=1),
+    ]
+    db_session.add_all(inventories)
+
     rentals = [
         Rental(
             rental_id=1,
