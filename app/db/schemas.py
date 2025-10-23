@@ -78,3 +78,4 @@ class Film(Base):
     __tablename__ = "film"
     film_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String)
+    rental_duration: Mapped[int] = mapped_column(Integer, default=3)

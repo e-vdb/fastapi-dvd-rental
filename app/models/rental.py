@@ -44,3 +44,24 @@ class RentalCreate(BaseModel):
 
     customer_id: int = Field(..., gt=0, description="ID of the customer")
     film_id: int = Field(..., gt=0, description="ID of the film to rent")
+
+
+class OverdueRental(BaseModel):
+    """Model for the overdue rental."""
+
+    rental_id: int
+    customer_id: int
+    inventory_id: int
+    film_id: int
+    rental_duration: int
+    rental_date: datetime = Field(
+        ...,
+        title="Rental date",
+        description="Date of the rental.",
+    )
+    due_date: datetime = Field(
+        ...,
+        title="Rental date",
+        description="Date of the rental.",
+    )
+    days_overdue: int
