@@ -92,6 +92,25 @@ psql postgres
 
 The application uses Auth0 for authentication. The token is verified using the PyJWT library. The token is passed in the Authorization header as a Bearer token.
 
+
+## Layer flow
+
+```
+[Router] → [Service] → [Repository] → [DB]
+                         ↑
+                 [Pydantic Models]
+
+```
+
+| Layer                 | Purpose                                             | Example                                |
+| --------------------- | --------------------------------------------------- |----------------------------------------|
+| **Router**            | HTTP entrypoint, validation, response serialization | `/rentals/`, `/rentals/filter`         |
+| **Service**           | Business logic, transactions, orchestration         | `RentalService.create_rental()`        |
+| **Repository**        | Data access (SQLAlchemy queries)                    | `RentalRepository.create_rental_raw()` |
+| **Models (Pydantic)** | Input/output schema                                 | `RentalFilters`, `RentalItem`          |
+| **DB Layer**          | ORM mapping                                         | `Rental` SQLAlchemy model              |
+
+
 ## References
 - [fastapi](https://fastapi.tiangolo.com/)
 - [Postgres Tutorial](https://neon.com/postgresql/tutorial)
