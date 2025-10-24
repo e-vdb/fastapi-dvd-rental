@@ -1,20 +1,95 @@
 # app/repositories/film_repository.py
 """Film repository."""
 
-# pylint: disable=too-few-public-methods, not-callable
+# pylint: disable=too-few-public-methods, not-callable, duplicate-code
 
 from __future__ import annotations
 
-from sqlalchemy import func
+from typing import TYPE_CHECKING
 
-from app.db.schemas import Actor, Film, FilmActor, Inventory, Rental
+from sqlalchemy import Sequence, func, select
+
+from app.db.schemas import (
+    Actor,
+    CategoryOrm,
+    Film,
+    FilmActor,
+    FilmCategoryOrm,
+    Inventory,
+    Rental,
+)
 from app.models.rental import RentalFilmCountOutput
 from app.models.reports import ActorFilmCount, ActorRentalCount
 from app.repositories.base_repository import BaseRepository
+from app.utils.query_builders import apply_filters_map
+
+if TYPE_CHECKING:
+    from app.models.filters.film import FilmFilters
 
 
 class FilmRepository(BaseRepository):
     """Class to manage film data."""
+
+    def get_film(self, film_id: int) -> Film | None:
+        """Get a film from its unique id."""
+        stmt = select(Film).where(Film.film_id == film_id)
+        return self.db.execute(stmt).scalars().first()
+
+    def get_film_with_details(self, film_id: int) -> Sequence:
+        """Get a film from its unique id with details.
+
+        The query joins the film, film_category, and category tables
+         to get the film details.
+
+        """
+        stmt = (
+            select(
+                Film.film_id,
+                Film.title,
+                Film.rental_duration,
+                Film.rating,
+                Film.release_year,
+                Film.description,
+                CategoryOrm.name.label("category"),
+            )
+            .join(FilmCategoryOrm, Film.film_id == FilmCategoryOrm.film_id)
+            .join(CategoryOrm, CategoryOrm.category_id == FilmCategoryOrm.category_id)
+            .where(Film.film_id == film_id)
+        )
+        return self.db.execute(stmt).first()
+
+    def list_films(self, filters: FilmFilters) -> Sequence:
+        """Return a list of films that match the specified filters."""
+        stmt = (
+            select(
+                Film.film_id,
+                Film.title,
+                CategoryOrm.name.label("category"),
+                Film.description,
+                Film.rating,
+                Film.release_year,
+                Film.rental_duration,
+            )
+            .join(FilmCategoryOrm, FilmCategoryOrm.film_id == Film.film_id)
+            .join(CategoryOrm, CategoryOrm.category_id == FilmCategoryOrm.category_id)
+        )
+
+        # Build filter map for all relevant fields
+        filter_map = {
+            "rating": Film.rating,
+            "title": Film.title,
+            "category": CategoryOrm.name,
+            "film_id": Film.film_id,
+            "release_year": Film.release_year,
+        }
+
+        stmt = apply_filters_map(
+            stmt=stmt,
+            filters=filters,
+            filter_map=filter_map,
+        )
+
+        return self.db.execute(stmt).all()
 
     def get_most_rented(self, limit: int) -> list[RentalFilmCountOutput]:
         """Retrieve the top rented films."""

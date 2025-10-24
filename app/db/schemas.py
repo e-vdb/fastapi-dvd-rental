@@ -79,3 +79,22 @@ class Film(Base):
     film_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String)
     rental_duration: Mapped[int] = mapped_column(Integer, default=3)
+    rating: Mapped[str] = mapped_column(String, default=3)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    release_year: Mapped[int] = mapped_column(Integer, default=2025)
+
+
+class CategoryOrm(Base):
+    """Schema for category table."""
+
+    __tablename__ = "category"
+    category_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String, default="PG-13")
+
+
+class FilmCategoryOrm(Base):
+    """Schema for film_category table."""
+
+    __tablename__ = "film_category"
+    category_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    film_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

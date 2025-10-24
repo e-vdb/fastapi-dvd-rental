@@ -23,3 +23,29 @@ def test_get_inventory_available_for_rental(
         store_id=1,
     )
     assert inventory is None
+
+
+def test_get_available_inventory_count_success(
+    db_session,
+    multiple_customers_with_rentals,
+):
+    """Test get_available_inventory_count method."""
+    repository = InventoryRepository(db_session)
+    count = repository.get_available_inventory_count(
+        film_id=1,
+        store_id=1,
+    )
+    assert count == 1
+
+
+def test_retrieve_null_stock_when_all_rented(
+    db_session,
+    multiple_customers_with_rentals,
+):
+    """Test get_available_inventory_count method."""
+    repository = InventoryRepository(db_session)
+    count = repository.get_available_inventory_count(
+        film_id=3,
+        store_id=1,
+    )
+    assert count == 0
