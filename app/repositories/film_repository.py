@@ -1,7 +1,7 @@
 # app/repositories/film_repository.py
 """Film repository."""
 
-# pylint: disable=too-few-public-methods, not-callable
+# pylint: disable=too-few-public-methods, not-callable, duplicate-code
 
 from __future__ import annotations
 
@@ -83,7 +83,6 @@ class FilmRepository(BaseRepository):
             "release_year": Film.release_year,
         }
 
-        # Apply standard Rental filters
         stmt = apply_filters_map(
             stmt=stmt,
             filters=filters,
