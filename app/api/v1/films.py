@@ -6,9 +6,12 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import DatabaseSession
 from app.core.security import require_permission
+from app.models.film import EnrichedFilmModel, FilmModel
+from app.models.filters.film import FilmFilters
 from app.models.rental import RentalFilmCountOutput
 from app.models.reports import ActorFilmCount, ActorRentalCount
 from app.repositories.film_repository import FilmRepository
+from app.services.film_service import FilmService
 
 router = APIRouter(
     prefix="/films",
@@ -16,6 +19,28 @@ router = APIRouter(
 )
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="app.log", level=logging.INFO)
+
+
+@router.get("/{film_id}/read", response_model=FilmModel | EnrichedFilmModel)
+def get_film(
+    db: DatabaseSession,
+    film_id: int,
+    *,
+    include_details: bool = False,
+) -> FilmModel | EnrichedFilmModel:
+    """Retrieve a film by ID."""
+    service = FilmService(db)
+    return service.get_film(film_id=film_id, include_details=include_details)
+
+
+@router.get("/", response_model=list[EnrichedFilmModel])
+def list_films(
+    db: DatabaseSession,
+    filters: FilmFilters = Depends(),
+) -> list[EnrichedFilmModel]:
+    """Retrieve a film by ID."""
+    service = FilmService(db)
+    return service.list_films(filters=filters)
 
 
 @router.get("/top", response_model=list[RentalFilmCountOutput])
