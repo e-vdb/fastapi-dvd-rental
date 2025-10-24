@@ -56,3 +56,21 @@ class EnrichedFilmModel(FilmModel):
     """Enriched film model."""
 
     category: CategoryEnum
+
+
+class ActorResponse(BaseModel):
+    """Actor response model."""
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+    first_name: str
+    last_name: str
+
+
+class FilmCastResponse(BaseModel):
+    """Film cast response model."""
+
+    film_id: int
+    actors: list[ActorResponse]

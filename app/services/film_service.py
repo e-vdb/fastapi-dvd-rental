@@ -3,8 +3,14 @@
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import NotFoundException
-from app.models.film import EnrichedFilmModel, FilmModel
+from app.models.film import (
+    ActorResponse,
+    EnrichedFilmModel,
+    FilmCastResponse,
+    FilmModel,
+)
 from app.models.filters.film import FilmFilters
+from app.repositories.actor_repository import ActorRepository
 from app.repositories.film_repository import FilmRepository
 
 
@@ -15,6 +21,7 @@ class FilmService:
         """Initialise the class."""
         self._db = db
         self.film_repo = FilmRepository(db=self._db)
+        self.actor_repo = ActorRepository(db=self._db)
 
     def get_film(
         self,
@@ -68,3 +75,24 @@ class FilmService:
             filters=filters,
         )
         return [EnrichedFilmModel.model_validate(result) for result in results]
+
+    def get_film_cast(self, film_id: int) -> FilmCastResponse:
+        """Get the cast of a given film."""
+        film = self.film_repo.get_film(
+            film_id=film_id,
+        )
+        if film is None:
+            raise NotFoundException(
+                resource="Film",
+                identifier=film_id,
+            )
+        actors = [
+            ActorResponse.model_validate(
+                actor,
+            )
+            for actor in self.actor_repo.get_cast(film_id=film_id)
+        ]
+        return FilmCastResponse(
+            film_id=film_id,
+            actors=actors,
+        )

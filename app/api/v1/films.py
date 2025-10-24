@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import DatabaseSession
 from app.core.security import require_permission
-from app.models.film import EnrichedFilmModel, FilmModel
+from app.models.film import EnrichedFilmModel, FilmCastResponse, FilmModel
 from app.models.filters.film import FilmFilters
 from app.models.rental import RentalFilmCountOutput
 from app.models.reports import ActorFilmCount, ActorRentalCount
@@ -41,6 +41,16 @@ def list_films(
     """Retrieve a film by ID."""
     service = FilmService(db)
     return service.list_films(filters=filters)
+
+
+@router.get("/{film_id}/cast", response_model=FilmCastResponse)
+def get_film_cast(
+    db: DatabaseSession,
+    film_id: int,
+) -> FilmCastResponse:
+    """Retrieve the cast of a film."""
+    service = FilmService(db)
+    return service.get_film_cast(film_id=film_id)
 
 
 @router.get("/top", response_model=list[RentalFilmCountOutput])
