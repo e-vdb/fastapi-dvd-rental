@@ -53,6 +53,23 @@ def get_film_cast(
     return service.get_film_cast(film_id=film_id)
 
 
+@router.get("/{film_id}/availability", response_model=dict)
+def get_film_availability(
+    db: DatabaseSession,
+    film_id: int,
+    store_id: int,
+) -> dict:
+    """Retrieve the availability of a film."""
+    service = FilmService(db)
+    return {
+        "film_id": film_id,
+        "available": service.get_available_stock(
+            film_id=film_id,
+            store_id=store_id,
+        ),
+    }
+
+
 @router.get("/top", response_model=list[RentalFilmCountOutput])
 def get_top_rented_films(
     db: DatabaseSession,

@@ -12,6 +12,7 @@ from app.models.film import (
 from app.models.filters.film import FilmFilters
 from app.repositories.actor_repository import ActorRepository
 from app.repositories.film_repository import FilmRepository
+from app.repositories.inventory_repository import InventoryRepository
 
 
 class FilmService:
@@ -22,6 +23,7 @@ class FilmService:
         self._db = db
         self.film_repo = FilmRepository(db=self._db)
         self.actor_repo = ActorRepository(db=self._db)
+        self.inventory_repo = InventoryRepository(db=self._db)
 
     def get_film(
         self,
@@ -95,4 +97,19 @@ class FilmService:
         return FilmCastResponse(
             film_id=film_id,
             actors=actors,
+        )
+
+    def get_available_stock(self, film_id: int, store_id: int) -> int:
+        """Get the available stock of a film."""
+        film = self.film_repo.get_film(
+            film_id=film_id,
+        )
+        if film is None:
+            raise NotFoundException(
+                resource="Film",
+                identifier=film_id,
+            )
+        return self.inventory_repo.get_available_inventory_count(
+            film_id=film_id,
+            store_id=store_id,
         )
