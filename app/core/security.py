@@ -8,15 +8,31 @@ We use Auth0 to issue the tokens.
 # pylint: disable=too-few-public-methods
 
 from collections.abc import Awaitable, Callable
+from os import getenv
 
 import jwt
+from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import get_settings
 from app.core.exceptions import UnauthenticatedException, UnauthorizedException
 
+load_dotenv()
 oauth2_scheme = HTTPBearer(auto_error=False)
+
+
+NAMESPACE = getenv("AUTH_NAMESPACE", "https://fastapiexample.com").rstrip("/")
+
+
+def claim(user: dict, name: str, default: str | None = None) -> str | None:
+    """Return a namespaced custom claim from the token payload."""
+    return user.get(f"{NAMESPACE}/{name}", default)
+
+
+def has_perm(user: dict, permission: str) -> bool:
+    """Check whether a user has required permissions."""
+    return permission in set(user.get("permissions", []))
 
 
 class VerifyToken:
@@ -102,13 +118,6 @@ async def get_current_user(
     return payload
 
 
-async def get_user_permissions(
-    payload: dict = Depends(token_verifier.verify),
-) -> list:
-    """Get permissions from token."""
-    return payload.get("permissions", [])
-
-
 def require_permission(required_permission: str) -> Callable[[dict], Awaitable[dict]]:
     """Dependency factory to check for specific permissions.
 
@@ -131,11 +140,32 @@ def require_permission(required_permission: str) -> Callable[[dict], Awaitable[d
     """
 
     async def permission_checker(user: dict = Depends(get_current_user)) -> dict:
-        permissions = user.get("permissions", [])
-        if required_permission not in permissions:
+        if not has_perm(user, required_permission):
             raise UnauthorizedException(
                 detail=f"Permission '{required_permission}' required",
             )
         return user
 
     return permission_checker
+
+
+def require_customer(
+    required_scope: str | None = None,
+) -> Callable[[dict], Awaitable[dict]]:
+    """Ensure the caller is a customer.
+
+    If required_scope is provided, also ensure the caller has that permission
+     (e.g., 'read:customers:self').
+    """
+
+    async def customer_checker(user: dict = Depends(get_current_user)) -> dict:
+        user_type = claim(user, "user_type")
+        if user_type != "customer":
+            raise UnauthorizedException(detail="Customer required")
+        if required_scope and not has_perm(user, required_scope):
+            raise UnauthorizedException(
+                detail=f"Permission '{required_scope}' required",
+            )
+        return user
+
+    return customer_checker
