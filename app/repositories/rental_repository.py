@@ -6,13 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, Sequence, cast, func, select
+from sqlalchemy import Date, Row, Sequence, cast, func, select
 
-from app.core.exceptions import (
-    NotFoundException,
-)
 from app.db.schemas import Film, Inventory, Rental
-from app.models.rental import RentalOutput
 from app.repositories.base_repository import BaseRepository
 from app.utils.query_builders import apply_filters, apply_filters_map
 
@@ -57,27 +53,21 @@ class RentalRepository(BaseRepository):
         """
         return self.db.query(Rental).filter(Rental.rental_id == rental_id).first()
 
-    def get_customer_rentals(self, customer_id: int) -> list[RentalOutput]:
+    def get_customer_rentals(self, customer_id: int) -> list[Row]:
         """Get rentals of customer."""
-        results = (
-            self.db.query(Rental.rental_date, Film.title)
+        return (
+            self.db.query(
+                Rental.rental_id,
+                Rental.inventory_id,
+                Rental.rental_date,
+                Rental.return_date,
+                Film.title,
+            )
             .join(Inventory, Rental.inventory_id == Inventory.inventory_id)
             .join(Film, Inventory.film_id == Film.film_id)
             .filter(Rental.customer_id == customer_id)
             .all()
         )
-        if len(results) == 0:
-            raise NotFoundException(
-                resource="Customer",
-                identifier=customer_id,
-            )
-        return [
-            RentalOutput(
-                rental_date=result.rental_date,
-                title=result.title,
-            )
-            for result in results
-        ]
 
     def create_rental_raw(
         self,
