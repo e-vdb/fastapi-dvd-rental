@@ -8,7 +8,12 @@ from pydantic import BaseModel, ConfigDict, Field
 class RentalOutput(BaseModel):
     """Model for the rental output."""
 
+    model_config = ConfigDict(from_attributes=True)
+
+    rental_id: int
+    inventory_id: int
     rental_date: datetime
+    return_date: datetime | None = None
     title: str
 
 

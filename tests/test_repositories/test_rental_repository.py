@@ -4,11 +4,6 @@
 
 from datetime import UTC, datetime
 
-import pytest
-
-from app.core.exceptions import (
-    NotFoundException,
-)
 from app.db.schemas import Rental
 from app.models.rental_filters import OverdueRentalFilters, RentalFilters
 from app.repositories.rental_repository import RentalRepository
@@ -27,17 +22,15 @@ def test_get_customer_rentals_success(db_session, customer_with_rentals):
     assert rentals[0].title == "The Shawshank Redemption"
 
 
-def test_get_customer_rentals_not_found_raises_exception(
+def test_get_customer_rentals__with_customers_not_found(
     db_session,
     customer_with_rentals,
 ):
-    """Test get_customer_rentals method raises NotFoundException."""
+    """Test the method returns an empty list when the customer id does not exist."""
     repository = RentalRepository(db_session)
+    rentals = repository.get_customer_rentals(customer_id=999)
 
-    with pytest.raises(NotFoundException) as exc_info:
-        repository.get_customer_rentals(customer_id=999)
-
-    assert "Customer with id 999 not found" in str(exc_info.value.detail)
+    assert len(rentals) == 0
 
 
 def test_get_rental_success(db_session, multiple_rentals):

@@ -6,10 +6,9 @@ from http.client import HTTPException
 from fastapi import APIRouter, Depends, status
 
 from app.api.deps import DatabaseSession
-from app.core.security import require_customer, require_permission
+from app.core.security import claim, require_customer, require_permission
 from app.models.customer import CustomerOutput
 from app.models.rental import RentalOutput
-from app.repositories.rental_repository import RentalRepository
 from app.services.customer_service import CustomerService
 
 router = APIRouter(
@@ -32,12 +31,29 @@ def get_current_customer(
         user.get("sub"),
     )
     service = CustomerService(db)
-    customer_id_from_token = user.get("https://fastapiexample.com/customer_id")
+    customer_id_from_token = claim(user, "customer_id")
     if not customer_id_from_token:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return service.get_customer(
-        customer_id=customer_id_from_token,
+        customer_id=int(customer_id_from_token),
     )
+
+
+@router.get("/me/rentals", response_model=list[RentalOutput])
+def get_current_customer_rentals(
+    db: DatabaseSession,
+    user: dict = Depends(require_customer(None)),
+) -> list[RentalOutput]:
+    """Retrieve rentals for the current customer."""
+    logger.info(
+        "User %s accessed their own rentals data",
+        user.get("sub"),
+    )
+    service = CustomerService(db)
+    customer_id_from_token = claim(user, "customer_id")
+    if not customer_id_from_token:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return service.get_customer_rentals(customer_id=int(customer_id_from_token))
 
 
 @router.get("/{customer_id}", response_model=CustomerOutput)
@@ -69,5 +85,5 @@ def get_customer_rentals(
         user.get("sub"),
         customer_id,
     )
-    service = RentalRepository(db)
+    service = CustomerService(db)
     return service.get_customer_rentals(customer_id=customer_id)
