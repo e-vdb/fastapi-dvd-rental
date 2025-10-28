@@ -59,8 +59,6 @@ Run the application (development mode)
 uv run fastapi dev app/app.py
 ```
 
-
-
 Run unit tests
 
 ```
@@ -71,6 +69,15 @@ Run unit tests with coverage
 
 ```
 uv run pytest --cov=app
+```
+
+Run the application in container with docker compose
+```
+docker compose up --build
+```
+and stop with
+```
+docker compose down
 ```
 
 ## GitHub Actions
