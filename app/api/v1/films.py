@@ -1,10 +1,9 @@
 """Films API endpoints."""
 
-import logging
-
 from fastapi import APIRouter, Depends
 
 from app.api.deps import DatabaseSession
+from app.core.logging_config import get_logger
 from app.core.security import require_permission
 from app.models.film import EnrichedFilmModel, FilmCastResponse, FilmModel
 from app.models.filters.film import FilmFilters
@@ -13,12 +12,12 @@ from app.models.reports import ActorFilmCount, ActorRentalCount
 from app.repositories.film_repository import FilmRepository
 from app.services.film_service import FilmService
 
+logger = get_logger(__name__)
+
 router = APIRouter(
     prefix="/films",
     tags=["films"],
 )
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
 @router.get("/{film_id}/read", response_model=FilmModel | EnrichedFilmModel)

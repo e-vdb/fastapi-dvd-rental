@@ -1,18 +1,17 @@
 """Logging middleware."""
 
 # pylint: disable=too-few-public-methods
-
-import logging
 from collections.abc import Awaitable, Callable
 from uuid import uuid4
 
+import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-logger = logging.getLogger(__name__)
-# log to a file
-logging.basicConfig(filename="app.log", level=logging.INFO)
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
@@ -31,16 +30,23 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Process the request and log its details."""
         request_id = str(uuid4())
+        # Bind context for all loggers during this request
+        structlog.contextvars.bind_contextvars(
+            request_id=request_id,
+            method=request.method,
+            path=str(request.url.path),
+        )
+
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
-
         process_time = response.headers.get("X-Process-Time", "N/A")
+
         logger.info(
-            "%s - %s %s %s %s",
-            request_id,
-            request.method,
-            request.url,
-            response.status_code,
-            process_time,
+            "request_handled",
+            status_code=response.status_code if "response" in locals() else "N/A",
+            process_time=process_time,
         )
+
+        # Clean up contextvars after request (important!)
+        structlog.contextvars.clear_contextvars()
         return response

@@ -10,7 +10,7 @@ class Config(BaseSettings):
     """Config class for the api."""
 
     app_name: str = "FastAPIProjectWithDVDRental"
-    debug: bool = False
+    debug: bool = True
     db_user: str = "guest"
     db_password: str = ""
     db_name: str = "dvdrental"
