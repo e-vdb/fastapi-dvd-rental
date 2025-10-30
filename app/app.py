@@ -4,12 +4,18 @@ from fastapi import FastAPI
 
 from app.api.deps import CurrentUser
 from app.api.v1 import customers, films, rentals
+from app.core.config import get_settings
 from app.core.exception_handlers import (
     not_found_exception_handler,
     validation_exception_handler,
 )
 from app.core.exceptions import CustomValidationError, NotFoundException
+from app.core.logging_config import get_logger, setup_logging
 from app.middleware.setup import setup_middleware
+
+config = get_settings()
+logger = get_logger(__name__)
+setup_logging(json_logs=not config.debug)
 
 app = FastAPI(title="DVD Rental API")
 setup_middleware(app)

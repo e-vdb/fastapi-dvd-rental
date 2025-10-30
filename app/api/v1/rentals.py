@@ -1,11 +1,10 @@
 """Rentals API endpoints."""
 from __future__ import annotations
 
-import logging
-
 from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import DatabaseSession  # noqa: TCH001
+from app.core.logging_config import get_logger
 from app.core.security import require_permission
 from app.models.rental import OverdueRental, RentalCreate, RentalItem
 from app.models.rental_filters import (  # noqa: TCH001
@@ -14,12 +13,12 @@ from app.models.rental_filters import (  # noqa: TCH001
 )
 from app.services.rental_service import RentalService
 
+logger = get_logger(__name__)
+
 router = APIRouter(
     prefix="/rentals",
     tags=["rentals"],
 )
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
 @router.get("/{rental_id}/read", response_model=RentalItem)

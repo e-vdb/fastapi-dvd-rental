@@ -1,23 +1,23 @@
 """Customers API endpoints."""
 
-import logging
 from http.client import HTTPException
 
 from fastapi import APIRouter, Depends, status
 
 from app.api.deps import DatabaseSession
+from app.core.logging_config import get_logger
 from app.core.security import claim, require_customer, require_permission
 from app.models.customer import CustomerOutput
 from app.models.rental import RentalOutput
 from app.services.customer_service import CustomerService
 
+logger = get_logger(__name__)
+
+
 router = APIRouter(
     prefix="/customers",
     tags=["customers"],
 )
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
 @router.get("/me", response_model=CustomerOutput)

@@ -17,6 +17,7 @@ dependencies = [
     "pytest-cov>=7.0.0",
     "python-dotenv>=1.1.1",
     "sqlalchemy>=2.0.43",
+    "structlog>=25.5.0",
 ]
 
 [tool.pytest.ini_options]
