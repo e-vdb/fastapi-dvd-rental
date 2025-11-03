@@ -126,3 +126,6 @@ The application uses Auth0 for authentication. The token is verified using the P
 - [Build and Secure a FastAPI Server with Auth0](https://auth0.com/blog/build-and-secure-fastapi-server-with-auth0/)
 - [auth0-python-fastapi-sample](https://github.com/auth0-blog/auth0-python-fastapi-sample)
 - [JSON Web Token (JWT) Debugger](https://www.jwt.io/#libraries)
+- [Building a Health-Check Microservice with FastAPI ](https://dev.to/lisan_al_gaib/building-a-health-check-microservice-with-fastapi-26jo)
+- [fastapi-microservice-health-check](https://github.com/DanielPopoola/fastapi-microservice-health-check)
+- 
