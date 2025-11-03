@@ -9,8 +9,12 @@ from pydantic_settings import BaseSettings
 class Config(BaseSettings):
     """Config class for the api."""
 
-    app_name: str = "FastAPIProjectWithDVDRental"
+    app_name: str = "DVD Rental API"
     debug: bool = True
+    log_level: str = "INFO"
+    api_host: str = "localhost"
+    api_port: int = 8000
+
     db_user: str = "guest"
     db_password: str = ""
     db_name: str = "dvdrental"
