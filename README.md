@@ -118,6 +118,81 @@ The application uses Auth0 for authentication. The token is verified using the P
 | **DB Layer**          | ORM mapping                                         | `Rental` SQLAlchemy model              |
 
 
+## 🔒 Local HTTPS
+
+### mkcert Configuration
+
+To avoid certificate warnings in development:
+
+1. **Install mkcert**
+```bash
+   # macOS
+   brew install mkcert nss
+   
+   # Linux
+   sudo apt install libnss3-tools
+   wget -O mkcert https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-linux-amd64
+   chmod +x mkcert
+   sudo mv mkcert /usr/local/bin/
+```
+
+2. **Create local Certificate Authority**
+```bash
+   mkcert -install
+```
+
+3. **Generate certificates**
+```bash
+   ./scripts/setup-local-certs.sh
+```
+
+4. **Install CA on your devices**
+   
+   The CA file is located at: `$(mkcert -CAROOT)/rootCA.pem`
+   
+   **iPhone:**
+   - Transfer `rootCA.pem` via AirDrop
+   - Settings > General > VPN & Device Management > Install
+   - Settings > General > About > Certificate Trust Settings > Enable
+   
+   **Android:**
+   - Rename to `rootCA.crt`
+   - Settings > Security > Install from storage
+
+## 🏗️ Architecture
+```
+┌─────────────────────────────────────┐
+│  Clients (Browser, Mobile)         │
+└──────────────┬──────────────────────┘
+               │ HTTPS
+               ▼
+┌─────────────────────────────────────┐
+│  Nginx (Reverse Proxy)              │
+│  - SSL termination                  │
+│  - Port 443                         │
+└──────────────┬──────────────────────┘
+               │ HTTP
+               ▼
+┌─────────────────────────────────────┐
+│  FastAPI                            │
+│  - REST API                         │
+│  - Port 8000                        │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│  PostgreSQL                         │
+│  - Database                         │
+│  - Port 5432 (internal)             │
+└─────────────────────────────────────┘
+```
+
+## 📝 API Documentation
+
+Once the application is running:
+- **Swagger UI:** `/docs`
+- **ReDoc:** `/redoc`
+
 ## References
 - [fastapi](https://fastapi.tiangolo.com/)
 - [Postgres Tutorial](https://neon.com/postgresql/tutorial)
@@ -128,4 +203,4 @@ The application uses Auth0 for authentication. The token is verified using the P
 - [JSON Web Token (JWT) Debugger](https://www.jwt.io/#libraries)
 - [Building a Health-Check Microservice with FastAPI ](https://dev.to/lisan_al_gaib/building-a-health-check-microservice-with-fastapi-26jo)
 - [fastapi-microservice-health-check](https://github.com/DanielPopoola/fastapi-microservice-health-check)
-- 
+- [homelab-certificats-https-ssl-mkcert](https://blog.stephane-robert.info/post/homelab-certificats-https-ssl-mkcert/)
