@@ -20,7 +20,7 @@ from app.middleware.setup import setup_middleware
 
 
 @asynccontextmanager
-async def lifespan() -> AsyncGenerator:
+async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Initialise the application start up.
 
     Handles startup and shutdown events.
