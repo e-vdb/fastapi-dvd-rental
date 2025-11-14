@@ -6,6 +6,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.deps import CurrentUser
 from app.api.v1 import customers, films, health, rentals
@@ -125,6 +126,7 @@ def create_app() -> FastAPI:
         }
 
     logger.info("FastAPI application created successfully")
+    Instrumentator().instrument(app).expose(app)
     return app
 
 

@@ -111,7 +111,7 @@ Health Check Response Example
 
 ### Structured Logging and request tracing middleware
 
-We use `structlog` python library to log events using structured data and we collect for each request the following metrics:
+We use `structlog` python library to log events using structured data and we log for each request the following:
 
 - processing time
 - status code
@@ -126,6 +126,13 @@ Two types of health checks have been implemented:
 2. Liveness Check (/health/live)
    - Answers: "Is the process running?"
 
+### Metrics
+
+Prometheus metrics endpoint can be accessed using
+
+```bash
+curl http://localhost:8000/metrics
+```
 
 ## GitHub Actions
 
