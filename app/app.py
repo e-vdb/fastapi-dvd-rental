@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.deps import CurrentUser
-from app.api.v1 import customers, films, rentals
+from app.api.v1 import customers, films, health, rentals
 from app.core.config import get_settings
 from app.core.exception_handlers import (
     not_found_exception_handler,
@@ -62,6 +62,11 @@ def create_app() -> FastAPI:
     app.add_exception_handler(
         exc_class_or_status_code=CustomValidationError,
         handler=validation_exception_handler,
+    )
+
+    app.include_router(
+        health.router,
+        prefix="/api/v1",
     )
 
     app.include_router(
