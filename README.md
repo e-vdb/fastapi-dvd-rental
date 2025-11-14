@@ -79,6 +79,53 @@ and stop with
 ```
 docker compose down
 ```
+## 📡 API Endpoints
+
+### Health Check Endpoints
+
+| Endpoint | Purpose | Use Case |
+| -------- |---------|----------|
+|GET /health |	Comprehensive health check |	Monitoring dashboards|
+|GET /health/live |	Liveness probe |	|
+
+Health Check Response Example
+
+```json
+{
+   "status":"healthy",
+   "timestamp":"2025-11-14T12:55:44.430744+00:00",
+   "uptime_seconds":17.613036,
+   "version":"1.0.0",
+   "environment":"development",
+   "checks": {
+      "database": {
+         "status":"healthy",
+         "duration_ms":44.121742248535156,
+         "error":null
+      }
+   }
+}
+```
+
+## 🔍 Monitoring & Observability
+
+### Structured Logging and request tracing middleware
+
+We use `structlog` python library to log events using structured data and we collect for each request the following metrics:
+
+- processing time
+- status code
+
+### Health Check Patterns
+
+Two types of health checks have been implemented:
+
+1. Comprehensive Check (/health)
+   - Answers: "Is everything working optimally?"
+   - Use for: Monitoring dashboards
+2. Liveness Check (/health/live)
+   - Answers: "Is the process running?"
+
 
 ## GitHub Actions
 
