@@ -259,3 +259,4 @@ Once the application is running:
 - [fastapi-microservice-health-check](https://github.com/DanielPopoola/fastapi-microservice-health-check)
 - [homelab-certificats-https-ssl-mkcert](https://blog.stephane-robert.info/post/homelab-certificats-https-ssl-mkcert/)
 - [Publishing Docker images](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images)
+- [Publishing Multi-Arch Docker images to GHCR using Buildx and GitHub Actions](https://dev.to/pradumnasaraf/publishing-multi-arch-docker-images-to-ghcr-using-buildx-and-github-actions-2k7j)
