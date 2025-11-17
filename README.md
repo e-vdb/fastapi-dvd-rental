@@ -10,6 +10,7 @@
 [![PyJWT](https://img.shields.io/badge/pyjwt-0A8BFF.svg?logo=pyjwt)](https://github.com/jpadilla/pyjwt)
 [![Pydantic](https://img.shields.io/badge/pydantic-0A8BFF.svg?logo=pydantic)](https://github.com/pydantic/pydantic)
 ![ci workflow](https://github.com/e-vdb/fastapi-dvd-rental/actions/workflows/ci.yml/badge.svg)
+![build workflow](https://github.com/e-vdb/fastapi-dvd-rental/actions/workflows/docker-publish.yml/badge.svg)
 
 ## Features
 
@@ -73,7 +74,7 @@ uv run pytest --cov=app
 
 Run the application in container with docker compose
 ```
-docker compose up --build
+docker compose up
 ```
 and stop with
 ```
@@ -139,6 +140,19 @@ curl http://localhost:8000/metrics
 ### Lint and test
 
 The workflow is set up in `.github/workflows/ci.yml`.
+
+### Build and push Docker image
+
+The workflow is set up in `.github/workflows/docker-publish.yml`.
+
+On each push to main or dev, it:
+
+1. Builds a multi-architecture Docker image (linux/amd64 and linux/arm64)
+
+2. Pushes it to GHCR under the tags
+   - `ghcr.io/e-vdb/fastapi-dvd-rental:latest`
+   - `ghcr.io/e-vdb/fastapi-dvd-rental:dev`
+   - `ghcr.io/e-vdb/fastapi-dvd-rental:<sha>`
 
 ## Experiment with postgres
 
