@@ -258,3 +258,4 @@ Once the application is running:
 - [Building a Health-Check Microservice with FastAPI ](https://dev.to/lisan_al_gaib/building-a-health-check-microservice-with-fastapi-26jo)
 - [fastapi-microservice-health-check](https://github.com/DanielPopoola/fastapi-microservice-health-check)
 - [homelab-certificats-https-ssl-mkcert](https://blog.stephane-robert.info/post/homelab-certificats-https-ssl-mkcert/)
+- [Publishing Docker images](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images)
