@@ -52,6 +52,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title=settings.app_name,
+        version=settings.api_version,
         lifespan=lifespan,
     )
     setup_middleware(app)
@@ -89,20 +90,6 @@ def create_app() -> FastAPI:
     def read_root() -> dict[str, str]:
         """Read root endpoint."""
         return {"Hello": "World"}
-
-    @app.get("/api/public")
-    def public() -> dict[str, str]:
-        """Get public endpoint.
-
-        No access token required to access this route.
-        """
-        return {
-            "status": "success",
-            "msg": (
-                "Hello from a public endpoint! You don't need to be "
-                "authenticated to see this."
-            ),
-        }
 
     # new code 👇
     @app.get("/api/private")

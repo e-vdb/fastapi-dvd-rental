@@ -10,6 +10,9 @@ class Config(BaseSettings):
     """Config class for the api."""
 
     app_name: str = "DVD Rental API"
+    api_description: str = "API for managing DVD rentals"
+    api_version: str = "1.0.0"
+
     debug: bool = True
     log_level: str = "INFO"
     api_host: str = "localhost"
