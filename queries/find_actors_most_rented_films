@@ -1,0 +1,10 @@
+SELECT COUNT(f.film_id), a.first_name, a.last_name, a.actor_id
+FROM rental as r
+JOIN inventory as i
+ON i.inventory_id = r.inventory_id
+JOIN film as f ON f.film_id=i.film_id
+JOIN film_actor as fa ON fa.film_id=f.film_id
+JOIN actor as a ON a.actor_id=fa.actor_id
+GROUP BY 2,3,4
+ORDER BY 1 DESC
+LIMIT 5;

@@ -81,6 +81,21 @@ and stop with
 docker compose down
 ```
 
+You'll need a `.env` file with the following parameters
+
+```.env
+DB_USER = myuser
+DB_HOST = myhost
+DB_PASSWORD = mypassword
+AUTH0_DOMAIN = myauth0domain
+AUTH0_API_AUDIENCE = myauth0apiaudience
+AUTH0_ISSUER = myauth0issuer
+AUTH0_ALGORITHMS = RS256
+POSTGRES_USER = myuser
+POSTGRES_PASSWORD =  mypassword
+POSTGRES_DB = dvdrental
+```
+
 ## DVD Rental database
 
 ![dvdrental-er-model](https://github.com/e-vdb/fastapi-dvd-rental/releases/download/v0.1.0/postgresql-sample-database-diagram.png)
