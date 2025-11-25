@@ -1,21 +1,59 @@
 """Customers API endpoints."""
 
-import logging
+from http.client import HTTPException
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from app.api.deps import DatabaseSession
-from app.core.security import require_permission
+from app.core.logging_config import get_logger
+from app.core.security import claim, require_customer, require_permission
 from app.models.customer import CustomerOutput
-from app.repositories.customer_repository import CustomerRepository
+from app.models.rental import RentalOutput
+from app.services.customer_service import CustomerService
+
+logger = get_logger(__name__)
+
 
 router = APIRouter(
     prefix="/customers",
     tags=["customers"],
 )
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="app.log", level=logging.INFO)
+
+@router.get("/me", response_model=CustomerOutput)
+def get_current_customer(
+    db: DatabaseSession,
+    user: dict = Depends(require_customer(None)),
+) -> CustomerOutput:
+    """Retrieve the current customer."""
+    logger.info(
+        "User %s accessed their own customer data",
+        user.get("sub"),
+    )
+    service = CustomerService(db)
+    customer_id_from_token = claim(user, "customer_id")
+    if not customer_id_from_token:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return service.get_customer(
+        customer_id=int(customer_id_from_token),
+    )
+
+
+@router.get("/me/rentals", response_model=list[RentalOutput])
+def get_current_customer_rentals(
+    db: DatabaseSession,
+    user: dict = Depends(require_customer(None)),
+) -> list[RentalOutput]:
+    """Retrieve rentals for the current customer."""
+    logger.info(
+        "User %s accessed their own rentals data",
+        user.get("sub"),
+    )
+    service = CustomerService(db)
+    customer_id_from_token = claim(user, "customer_id")
+    if not customer_id_from_token:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return service.get_customer_rentals(customer_id=int(customer_id_from_token))
 
 
 @router.get("/{customer_id}", response_model=CustomerOutput)
@@ -31,5 +69,21 @@ def get_customer(
         user.get("sub"),
         customer_id,
     )
-    service = CustomerRepository(db)
+    service = CustomerService(db)
     return service.get_customer(customer_id=customer_id)
+
+
+@router.get("/{customer_id}/rentals", response_model=list[RentalOutput])
+def get_customer_rentals(
+    db: DatabaseSession,
+    customer_id: int,
+    user: dict = Depends(require_permission("read:rentals")),
+) -> list[RentalOutput]:
+    """Retrieve rentals for a given customer."""
+    logger.info(
+        "User %s accessed customer %s",
+        user.get("sub"),
+        customer_id,
+    )
+    service = CustomerService(db)
+    return service.get_customer_rentals(customer_id=customer_id)

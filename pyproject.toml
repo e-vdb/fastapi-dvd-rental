@@ -7,7 +7,8 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.116.2",
     "pre-commit>=4.3.0",
-    "psycopg2>=2.9.10",
+    "prometheus-fastapi-instrumentator>=7.1.0",
+    "psycopg2-binary>=2.9.11",
     "pydantic>=2.11.9",
     "pydantic-settings>=2.11.0",
     "pyjwt[crypto]>=2.10.1",
@@ -17,6 +18,7 @@ dependencies = [
     "pytest-cov>=7.0.0",
     "python-dotenv>=1.1.1",
     "sqlalchemy>=2.0.43",
+    "structlog>=25.5.0",
 ]
 
 [tool.pytest.ini_options]

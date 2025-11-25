@@ -4,7 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -28,6 +29,30 @@ def test_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # ✅ Register missing PostgreSQL functions in SQLite
+    if engine.dialect.name == "sqlite":
+
+        @event.listens_for(Engine, "connect")
+        def sqlite_register_functions(
+            dbapi_connection,
+            connection_record,
+        ):  # pylint: disable=unused-argument
+            # Implement GREATEST()
+            def greatest(*args):
+                # Filter out None to avoid TypeErrors
+                valid_args = [a for a in args if a is not None]
+                return max(valid_args) if valid_args else None
+
+            dbapi_connection.create_function("greatest", -1, greatest)
+
+            # (Optional) Implement LEAST() too — can be handy later
+            def least(*args):
+                valid_args = [a for a in args if a is not None]
+                return min(valid_args) if valid_args else None
+
+            dbapi_connection.create_function("least", -1, least)
+
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)
@@ -186,6 +211,60 @@ def sample_rental(db_session, sample_customer, sample_inventory):
 
 
 @pytest.fixture
+def multiple_rentals(db_session):
+    """Create multiple rentals for testing list operations.
+
+    Args:
+        db_session: Test database session.
+
+    Returns:
+        List of Rental instances.
+
+    """
+    film = Film(
+        film_id=1,
+        title="Test Film",
+        rental_duration=3,
+    )
+    db_session.add(film)
+
+    inventories = [
+        Inventory(inventory_id=1, film_id=1),
+        Inventory(inventory_id=2, film_id=1),
+        Inventory(inventory_id=3, film_id=1),
+    ]
+    db_session.add_all(inventories)
+
+    rentals = [
+        Rental(
+            rental_id=1,
+            customer_id=1,
+            inventory_id=1,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+            return_date=datetime(2025, 1, 22, 10, 30, 0, tzinfo=UTC),
+        ),
+        Rental(
+            rental_id=2,
+            customer_id=2,
+            inventory_id=2,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+            return_date=datetime(2025, 1, 22, 10, 30, 0, tzinfo=UTC),
+        ),
+        Rental(
+            rental_id=3,
+            customer_id=3,
+            inventory_id=3,
+            rental_date=datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC),
+        ),
+    ]
+    db_session.add_all(rentals)
+    db_session.commit()
+    for rental in rentals:
+        db_session.refresh(rental)
+    return rentals
+
+
+@pytest.fixture
 def multiple_customers(db_session):
     """Create multiple customers for testing list operations.
 
@@ -304,30 +383,35 @@ def multiple_customers_with_rentals(db_session, multiple_customers):
             customer_id=multiple_customers[0].customer_id,
             inventory_id=1,
             rental_date=base_date,
+            return_date=base_date + timedelta(days=7),
         ),
         Rental(
             rental_id=2,
             customer_id=multiple_customers[1].customer_id,
             inventory_id=2,
             rental_date=base_date,
+            return_date=base_date + timedelta(days=7),
         ),
         Rental(
             rental_id=3,
             customer_id=multiple_customers[2].customer_id,
             inventory_id=3,
             rental_date=base_date,
+            return_date=base_date + timedelta(days=7),
         ),
         Rental(
             rental_id=4,
             customer_id=multiple_customers[0].customer_id,
             inventory_id=2,
             rental_date=base_date + timedelta(days=7),
+            return_date=base_date + timedelta(days=14),
         ),
         Rental(
             rental_id=5,
             customer_id=multiple_customers[1].customer_id,
             inventory_id=3,
             rental_date=base_date + timedelta(days=7),
+            return_date=base_date + timedelta(days=14),
         ),
         Rental(
             rental_id=6,
@@ -535,7 +619,7 @@ def mock_staff_user(mock_user_payload):
     """Create a mock staff user with read permissions."""
     return {
         **mock_user_payload,
-        "permissions": ["read:customers", "read:rentals"],
+        "permissions": ["read:customers", "read:rentals", "write:rentals"],
     }
 
 

@@ -49,3 +49,32 @@ class UnauthenticatedException(HTTPException):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Requires authentication",
         )
+
+
+class RentalAlreadyReturnedException(HTTPException):
+    """Exception raised when a rental is already returned."""
+
+    def __init__(self, identifier: int | str) -> None:
+        """Initialize the ReturnDateAlreadyExistsException.
+
+        Parameters
+        ----------
+        identifier: int | str
+            The identifier of the rental that was already returned.
+
+        """
+        super().__init__(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail=f"Rental with id {identifier} already returned",
+        )
+
+
+class FilmNotAvailableException(HTTPException):
+    """Exception raised when a film has no available copies for rental."""
+
+    def __init__(self, film_id: int, store_id: int) -> None:
+        """Initialise the FilmNotAvailableException."""
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Film {film_id} is not available for rental at store {store_id}",
+        )
