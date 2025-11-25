@@ -80,6 +80,16 @@ and stop with
 ```
 docker compose down
 ```
+
+## DVD Rental database
+
+![dvdrental-er-model](https://github.com/e-vdb/fastapi-dvd-rental/releases/download/v0.1.0/postgresql-sample-database-diagram.png)
+
+Download the sample database:
+
+[dvdrental.tar](https://github.com/e-vdb/fastapi-dvd-rental/releases/download/v0.1.0/dvdrental.tar)
+
+
 ## 📡 API Endpoints
 
 ### Health Check Endpoints
